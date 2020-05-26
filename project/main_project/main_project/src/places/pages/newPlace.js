@@ -1,8 +1,13 @@
 import React from 'react'; 
 
+import Input from '../../shared/components/FormElements/input';
+import './newPlace.css'
+
 const NewPlace = () => {
     return (
-        <h2>New place works! </h2>
+        <form className="place-form">
+           <Input element='input' type='text' label='Title' validators={} />
+        </form>
     );
 };
 
