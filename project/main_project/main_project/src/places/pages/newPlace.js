@@ -1,30 +1,36 @@
 import React from "react";
 
-
 import Input from "../../shared/components/FormElements/input";
-import Button from '../../shared/components/FormElements/Button';
+import Button from "../../shared/components/FormElements/Button";
 import {
   VALIDATOR_REQUIRE,
   VALIDATOR_MINLENGTH,
 } from "../../shared/util/validators";
 
+import { useForm } from "../../shared/hooks/form-hook";
 import "./PlaceForm.css";
-// import 
+// import
 
 const NewPlace = () => {
-  
+  const [formState, inputHandler] = useForm(
+    {
+      title: {
+        value: "",
+        isValid: false,
+      },
+      description: {
+        value: "",
+        isValid: false,
+      },
+      address: {
+        value: "",
+        isValid: false,
+      },
+    },
+    false
+  );
 
-  const inputHandler = useCallback((id, value, isValid) => {
-    dispatch({
-      type: 'INPUT_CHANGE',
-      value: value,
-      isValid: isValid,
-      inputId: id
-    });
-  }, []);
-
-
-  const placeSubmitHandler = event => {
+  const placeSubmitHandler = (event) => {
     event.preventDefault();
     console.log(formState.inputs); // send this to the backend!
   };
