@@ -1,14 +1,66 @@
-import React from 'react'; 
+import React from "react";
 
-import Input from '../../shared/components/FormElements/input';
-import './newPlace.css'
+
+import Input from "../../shared/components/FormElements/input";
+import Button from '../../shared/components/FormElements/Button';
+import {
+  VALIDATOR_REQUIRE,
+  VALIDATOR_MINLENGTH,
+} from "../../shared/util/validators";
+
+import "./PlaceForm.css";
+// import 
 
 const NewPlace = () => {
-    return (
-        <form className="place-form">
-           <Input element='input' type='text' label='Title' validators={} />
-        </form>
-    );
+  
+
+  const inputHandler = useCallback((id, value, isValid) => {
+    dispatch({
+      type: 'INPUT_CHANGE',
+      value: value,
+      isValid: isValid,
+      inputId: id
+    });
+  }, []);
+
+
+  const placeSubmitHandler = event => {
+    event.preventDefault();
+    console.log(formState.inputs); // send this to the backend!
+  };
+
+  return (
+    <form className="place-form" onSubmit={placeSubmitHandler}>
+      <Input
+        id="title"
+        element="input"
+        type="text"
+        label="Title"
+        validators={[VALIDATOR_REQUIRE()]}
+        errorText="Please enter a valid title."
+        onInput={inputHandler}
+      />
+      <Input
+        id="description"
+        element="textarea"
+        label="Description"
+        validators={[VALIDATOR_MINLENGTH(5)]}
+        errorText="Please enter a valid description (at least 5 characters)."
+        onInput={inputHandler}
+      />
+      <Input
+        id="address"
+        element="input"
+        label="Address"
+        validators={[VALIDATOR_REQUIRE()]}
+        errorText="Please enter a valid address."
+        onInput={inputHandler}
+      />
+      <Button type="submit" disabled={!formState.isValid}>
+        ADD PLACE
+      </Button>
+    </form>
+  );
 };
 
-export default NewPlace; 
+export default NewPlace;
