@@ -1,37 +1,48 @@
-const express = require('express'); 
+const express = require("express");
 
+const HttpError = require("../models/http-error");
 
-const router = express.Router(); 
+const router = express.Router();
 
 const DUMMY_PLACES = [
-    {
-        id: 'p1', 
-        title: 'Empire State Building', 
-        description: 'one of the most famous skyscrapers in the world',
-        location: {
-            lat: 40.7484474, 
-            lng: -73.9871516
-        }, 
-        address: '20 W 34th St, New York, NY 10001', 
-        creator: 'u1'
-    }
-]
+  {
+    id: "p1",
+    title: "Empire State Building",
+    description: "one of the most famous skyscrapers in the world",
+    location: {
+      lat: 40.7484474,
+      lng: -73.9871516,
+    },
+    address: "20 W 34th St, New York, NY 10001",
+    creator: "u1",
+  },
+];
 
-router.get('/:pid', (req, res, next) => {
-    const placeId = req.params.pid; 
-    const place = DUMMY_PLACES.find(p => {
-        return p.id === placeId; 
+router.get("/:pid", (req, res, next) => {
+  const placeId = req.params.pid;
+  const place = DUMMY_PLACES.find((p) => {
+    return p.id === placeId;
+  });
 
-    })
-    res.json({ place }); 
+  if (!place) {
+      return next(new HttpError('Could not find a matching place id', 404)); 
+    //   console.log(HttpError); 
+  }
+
+  res.json({ place });
 });
 
-router.get('/user/:uid', (req, res, next) => {
-    const userId = req.params.uid; 
-    const place = DUMMY_PLACES.find(u => {
-        return u.creator === userId
-    })
-    res.json({ place })
-})
+router.get("/user/:uid", (req, res, next) => {
+  const userId = req.params.uid;
+  const place = DUMMY_PLACES.find((u) => {
+    return u.creator === userId;
+  });
 
-module.exports = router; 
+  if (!place) {
+    return next(new HttpError('Could not find a matching user id', 404)); 
+  }
+
+  res.json({ place });
+});
+
+module.exports = router;
