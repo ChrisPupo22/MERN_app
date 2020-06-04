@@ -1,4 +1,5 @@
 const HttpError = require('../models/http-error');
+const { validationResult } = require('express-validator'); 
 
 
 //data cant be a const if you plan to change the data within the object
@@ -60,6 +61,12 @@ const uuid = require('uuid/dist/v4')
 
 // this is the function for creating a new place which is used in the POST method
 const createPlace = (req, res, next) => {
+  const error = validationResult(req); 
+  if(!error.isEmpty()) {
+    console.log(error)
+    throw new HttpError('Invalid inputs, please check your input data', 422); 
+  }
+
   const { title, description, coordinates, address, creator } = req.body;
   const randomId = '' + Math.floor(Math.random() * 10000);
   // const title = req.body.title;
@@ -80,6 +87,12 @@ const createPlace = (req, res, next) => {
 
 // this updates a place's title and description based off of the place's ID
 const updatePlaceById = (req, res, next) => {
+  const error = validationResult(req); 
+  if (!error.isEmpty()) {
+    console.log(error); 
+    throw new HttpError('please enter a valid title and description', 422); 
+  }
+
   const { title, description } = req.body;
   const placeId = req.params.pid; 
 
