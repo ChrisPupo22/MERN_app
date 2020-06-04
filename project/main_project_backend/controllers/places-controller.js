@@ -1,6 +1,8 @@
 const HttpError = require('../models/http-error');
 
-const DUMMY_PLACES = [
+
+//data cant be a const if you plan to change the data within the object
+let DUMMY_PLACES = [
   {
     id: 'p1',
     title: 'Empire State Building',
@@ -14,15 +16,19 @@ const DUMMY_PLACES = [
   }
 ];
 
+// checks for a place based off the the places ID and returns it 
 const getPlaceById = (req, res, next) => {
   const placeId = req.params.pid; // { pid: 'p1' }
 
   const place = DUMMY_PLACES.find(p => {
+    // console.log(p.id)
     return p.id === placeId;
   });
 
   if (!place) {
-    throw new HttpError('Could not find a place for the provided id.', 404);
+    return next(
+      new HttpError('could not find a place with the given place id', 404)
+    );
   }
 
   res.json({ place }); // => { place } => { place: place }
@@ -32,7 +38,7 @@ const getPlaceById = (req, res, next) => {
 // const getPlaceById = function() { ... }
 
 
-
+// checks for places with a specific user ID and returns it
 const getPlaceByUserId = (req, res, next) => {
   const userId = req.params.uid;
 
@@ -51,11 +57,13 @@ const getPlaceByUserId = (req, res, next) => {
 
 const uuid = require('uuid/dist/v4')
 
+// this is the function for creating a new place which is used in the POST method
 const createPlace = (req, res, next) => {
   const { title, description, coordinates, address, creator } = req.body;
+  const randomId = '' + Math.floor(Math.random() * 10000);
   // const title = req.body.title;
   const createdPlace = {
-    id: Math.floor(Math.random() * 10000), 
+    id: randomId, 
     title,
     description,
     location: coordinates,
@@ -68,7 +76,37 @@ const createPlace = (req, res, next) => {
   res.status(201).json({place: createdPlace});
 };
 
+
+// this updates a place's title and description based off of the place's ID
+const updatePlaceById = (req, res, next) => {
+  const { title, description } = req.body;
+  const placeId = req.params.pid; 
+
+  const placeToUpdate = {...DUMMY_PLACES.find(p => {
+    return p.id === placeId; 
+  })}; 
+  const placeIndex = DUMMY_PLACES.findIndex(p => p.id === placeId); 
+  placeToUpdate.title = title; 
+  placeToUpdate.description = description; 
+
+  DUMMY_PLACES[placeIndex] = placeToUpdate; 
+
+  res.status(200).json({place: placeToUpdate})
+  
+}
+
+// deletes a place if it matches the ID that is inputted 
+const deletePlaceById = (req, res, next) => {
+  const placeId = req.params.pid;
+  DUMMY_PLACES = DUMMY_PLACES.filter(p => p.id !== placeId); 
+  res.status(200).json({message: 'Successfully deleted place!'})
+
+}
+
 exports.getPlaceById = getPlaceById;
 exports.getPlaceByUserId = getPlaceByUserId;
 exports.createPlace = createPlace;
+exports.updatePlaceById = updatePlaceById; 
+exports.deletePlaceById = deletePlaceById; 
+
 
