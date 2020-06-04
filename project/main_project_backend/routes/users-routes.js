@@ -2,22 +2,14 @@ const express = require('express');
 
 const places = require('./places-routes')
 
-// const router = express.Router(); 
+const usersController = require('../controllers/users-controller'); 
 
-// const DUMMY_USERS = [
-//     {
-//         id: 'u1',
-//         name: 'Chris Pupo'
-//     }
-// ]
+const router = express.Router(); 
 
-// router.get('/:uid', (req, res, next) => {
-//     const userId = req.params.uid; 
-//     const user = DUMMY_USERS.find(u => {
-//         return u.id === userId
-//     })
-//     res.json({user})
-    
-// })
+router.get('/', usersController.getAllUsers); 
 
-// module.exports = router; 
+router.post('/signup', usersController.createUser); 
+
+router.post('/login', usersController.userLogin);
+
+module.exports = router; 
