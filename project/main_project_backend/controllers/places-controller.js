@@ -2,6 +2,7 @@ const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 const getCoordinates = require("../util/location");
 const Place = require("../models/place");
+const mongoose = require('mongoose'); 
 const User = require("../models/user"); 
 
 //data cant be a const if you plan to change the data within the object
@@ -121,8 +122,16 @@ const createPlace = async (req, res, next) => {
     return next(error); 
   }
 
+  console.log(user)
+
   try {
-    await createdPlace.save();
+    const sesh = await mongoose.startSession() 
+    sesh.startTransaction(); 
+    await createdPlace.save({ session: sesh }); 
+    user.places.push(createdPlace); 
+    await user.save({ session: sesh });
+    await sesh.commitTransaction();  
+
   } catch (err) {
     const error = new HttpError("Failed place creation, please try again", 500);
     return next(error);
@@ -176,14 +185,25 @@ const deletePlaceById = async (req, res, next) => {
   let place;
 
   try {
-    place = await Place.findById(placeId);
+    place = await (await Place.findById(placeId)).populate('creator');
   } catch (err) {
     const error = new HttpError("could not delete place", 500);
     return next(error);
   }
 
+  if (!place) {
+    const error = new HttpError('Could not find the corresponding place for the given ID', 404); 
+    return next(error); 
+  }
+
   try {
-    await place.remove();
+    const sesh = await mongoose.startSession(); 
+    sesh.startTransaction();
+    await place.remove({session: sesh}); 
+    place.creator.places.pull(place); 
+    await place.creator.save({session: sesh}); 
+    await sesh.commitTransaction(); 
+    
   } catch (err) {
     const error = new HttpError("could not delete place, e2", 500);
     return next(error);
