@@ -2,6 +2,7 @@ const HttpError = require("../models/http-error");
 const { validationResult } = require("express-validator");
 const getCoordinates = require("../util/location");
 const Place = require("../models/place");
+const User = require("../models/user"); 
 
 //data cant be a const if you plan to change the data within the object
 // let DUMMY_PLACES = [
@@ -102,8 +103,23 @@ const createPlace = async (req, res, next) => {
     address,
     location: coordinates,
     image: "https://i.ytimg.com/vi/nVzKzoFJkQo/maxresdefault.jpg",
-    creator,
+    creator
   });
+
+  let user; 
+
+  try {
+    user = await User.findById(creator); 
+
+  } catch (err) {
+    const error = new HttpError('creating place failed', 500); 
+    return next(error); 
+  }
+
+  if (!user) {
+    const error = new HttpError('Could not find user for provided Id', 404); 
+    return next(error); 
+  }
 
   try {
     await createdPlace.save();
@@ -119,7 +135,9 @@ const updatePlaceById = async (req, res, next) => {
   const error = validationResult(req);
   if (!error.isEmpty()) {
     console.log(error);
-    throw new HttpError("please enter a valid title and description", 422);
+    return next(
+      new HttpError("please enter a valid title and description", 422)
+    );
   }
 
   const { title, description } = req.body;
