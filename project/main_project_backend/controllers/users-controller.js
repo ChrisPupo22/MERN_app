@@ -39,7 +39,7 @@ const createUser = async (req, res, next) => {
     );
   }
 
-  const { name, location, email, password } = req.body;
+  const { name, email, password } = req.body;
   const randomUserId = "" + Math.floor(Math.random() * 10000);
 
   let existingUser;
@@ -61,7 +61,6 @@ const createUser = async (req, res, next) => {
   const createdUser = new User({
     name,
     email,
-    location,
     password,
     places: []
   });
