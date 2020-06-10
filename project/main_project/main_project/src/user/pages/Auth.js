@@ -8,14 +8,19 @@ import {
   VALIDATOR_REQUIRE,
 } from "../../shared/util/validators";
 
+import ErrorModal from '../../shared/components/UI_Elements/ErrorModal';
+import LoadingSpinner from '../../shared/components/UI_Elements/LoadingSpinner'; 
 import "./Auth.css";
-import { AuthContext } from '../../shared/context/auth-context';
+import { AuthContext } from "../../shared/context/auth-context";
 
 import { useForm } from "../../shared/hooks/form-hook";
 
 const AuthUser = () => {
-  const auth = useContext(AuthContext); 
+  const auth = useContext(AuthContext);
   const [isLoginMode, setLoginMode] = useState(true);
+  const [isLoading, setIsLoading ] = useState(false); 
+  const [error, setError] = useState(); 
+
   const [formState, inputHandler, setFormData] = useForm(
     {
       email: {
@@ -34,7 +39,7 @@ const AuthUser = () => {
     if (!isLoginMode) {
       setFormData(
         {
-          ...formState.inputs, 
+          ...formState.inputs,
           name: undefined,
         },
         formState.inputs.email.isValid && formState.inputs.password.isValid
@@ -54,14 +59,43 @@ const AuthUser = () => {
     setLoginMode((prevMode) => !prevMode);
   };
 
-  const authSubmitHandler = (event) => {
+  const authSubmitHandler = async (event) => {
     event.preventDefault();
-    console.log(formState.inputs);
-    auth.login(); 
+
+    if (isLoginMode) {
+    } else {
+      try {
+        setIsLoading(true); 
+        const response = await fetch("http://localhost:5000/api/users/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formState.inputs.name.value,
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value,
+          }),
+        });
+
+        const responseData = await response.json(); 
+        console.log(responseData); 
+        setIsLoading(false); 
+        auth.login(); 
+      } catch (err) {
+        console.log(err);
+        setIsLoading(false); 
+        setError(err.message || 'Something went wrong, please try again'); 
+      }
+    }
+    // setIsLoading(false); 
+
+    
   };
 
   return (
     <Card className="authentication">
+      {isLoading && <LoadingSpinner asOverlay/>}
       {isLoginMode && <h2>Please Login</h2>}
       {!isLoginMode && <h2>Please Sign-Up</h2>}
       <hr />
