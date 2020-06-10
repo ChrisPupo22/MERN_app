@@ -182,10 +182,10 @@ const updatePlaceById = async (req, res, next) => {
 // deletes a place if it matches the ID that is inputted
 const deletePlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
+  
   let place;
-
   try {
-    place = await (await Place.findById(placeId)).populate('creator');
+    place = await Place.findById(placeId).populate('creator');
   } catch (err) {
     const error = new HttpError("could not delete place", 500);
     return next(error);
