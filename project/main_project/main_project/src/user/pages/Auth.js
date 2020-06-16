@@ -11,6 +11,7 @@ import {
 import ErrorModal from "../../shared/components/UI_Elements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UI_Elements/LoadingSpinner";
 import "./Auth.css";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import { AuthContext } from "../../shared/context/auth-context";
 
 import { useForm } from "../../shared/hooks/form-hook";
@@ -18,8 +19,7 @@ import { useForm } from "../../shared/hooks/form-hook";
 const AuthUser = () => {
   const auth = useContext(AuthContext);
   const [isLoginMode, setLoginMode] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -61,36 +61,27 @@ const AuthUser = () => {
 
   const authSubmitHandler = async (event) => {
     event.preventDefault();
-    setIsLoading(true);
 
     if (isLoginMode) {
-      try {
+      
         // setIsLoading(true);
-        const response = await fetch("http://localhost:5000/api/users/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        await sendRequest(
+          "http://localhost:5000/api/users/login",
+          "POST",
+          JSON.stringify({
             email: formState.inputs.email.value,
             password: formState.inputs.password.value,
           }),
-        });
+          {
+            "Content-Type": "application/json",
+          }
+        );
 
-        const responseData = await response.json();
-        // "ok" prop is built into the response object that checks the status code,
-        // it is true if 200 status code else false
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
+       
         // console.log(responseData);
-        setIsLoading(false);
+      
         auth.login();
-      } catch (err) {
-        // console.log(err);
-        setIsLoading(false);
-        setError(err.message || "Something went wrong, please try again");
-      }
+     
     } else {
       try {
         // setIsLoading(true);
