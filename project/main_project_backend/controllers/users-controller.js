@@ -20,15 +20,15 @@ const User = require("../models/user");
 //   },
 // ];
 
-const getAllUsers = async(req, res, next) => {
-  let users; 
-  try{
-    users = await User.find({}, '-password');
+const getAllUsers = async (req, res, next) => {
+  let users;
+  try {
+    users = await User.find({}, "-password");
   } catch (err) {
-    const error = new HttpError('was not able to fetch users', 500); 
-    return next(error); 
+    const error = new HttpError("was not able to fetch users", 500);
+    return next(error);
   }
-  res.json({users: users.map(user => user.toObject({ getters: true }))}); 
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
 const createUser = async (req, res, next) => {
@@ -62,7 +62,7 @@ const createUser = async (req, res, next) => {
     name,
     email,
     password,
-    places: []
+    places: [],
   });
 
   try {
@@ -87,13 +87,16 @@ const userLogin = async (req, res, next) => {
   }
 
   if (!existingUser || existingUser.password !== password) {
-    const error = new HttpError('invalid credentials, cannot login', 401);
-    return next(error); 
+    const error = new HttpError("invalid credentials, cannot login", 401);
+    return next(error);
   }
- 
-  res.json({ message: "logged in" });
-};
 
+  res.json({
+    message: "logged in",
+    user: existingUser.toObject({ getters: true }),
+  });
+
+  
 exports.getAllUsers = getAllUsers;
 exports.createUser = createUser;
 exports.userLogin = userLogin;
