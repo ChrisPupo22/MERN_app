@@ -63,9 +63,9 @@ const AuthUser = () => {
     event.preventDefault();
 
     if (isLoginMode) {
+      try {
       
-        // setIsLoading(true);
-        await sendRequest(
+       const responseData = await sendRequest(
           "http://localhost:5000/api/users/login",
           "POST",
           JSON.stringify({
@@ -76,52 +76,42 @@ const AuthUser = () => {
             "Content-Type": "application/json",
           }
         );
+        auth.login(responseData.user.id);
+      } catch (err) {}
+        // fine to have an empty catch statement here
+      // setIsLoading(true);
 
-       
-        // console.log(responseData);
-      
-        auth.login();
-     
+      // console.log(responseData);
+
     } else {
       try {
         // setIsLoading(true);
-        const response = await fetch("http://localhost:5000/api/users/signup", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        const responseData = await sendRequest(
+          "http://localhost:5000/api/users/signup",
+          "POST",
+          JSON.stringify({
             name: formState.inputs.name.value,
             email: formState.inputs.email.value,
             password: formState.inputs.password.value,
           }),
-        });
+          {
+            "Content-Type": "application/json",
+          }
+        );
 
-        const responseData = await response.json();
-        // "ok" prop is built into the response object that checks the status code,
-        // it is true if 200 status code else false
-        if (!response.ok) {
-          throw new Error(responseData.message);
-        }
-        console.log(responseData);
-        setIsLoading(false);
-        auth.login();
-      } catch (err) {
-        console.log(err);
-        setIsLoading(false);
-        setError(err.message || "Something went wrong, please try again");
-      }
+        
+        // console.log(responseData);
+        
+        auth.login(responseData.user.id);
+      } catch (err) {}
     }
-    // setIsLoading(false);
   };
 
-  const errorHandler = () => {
-    setError(null);
-  };
+
 
   return (
     <React.Fragment>
-      <ErrorModal error={error} onClear={errorHandler} />
+      <ErrorModal error={error} onClear={clearError} />
       <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay />}
         {isLoginMode && <h2>Please Login</h2>}
