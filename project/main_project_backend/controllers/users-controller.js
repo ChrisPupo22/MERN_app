@@ -96,7 +96,8 @@ const userLogin = async (req, res, next) => {
     user: existingUser.toObject({ getters: true }),
   });
 
-  
+}
+
 exports.getAllUsers = getAllUsers;
 exports.createUser = createUser;
 exports.userLogin = userLogin;
