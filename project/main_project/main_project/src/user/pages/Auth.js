@@ -98,10 +98,7 @@ const AuthUser = () => {
             "Content-Type": "application/json",
           }
         );
-
-        
         // console.log(responseData);
-        
         auth.login(responseData.user.id);
       } catch (err) {}
     }
